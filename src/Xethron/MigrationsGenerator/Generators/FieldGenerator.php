@@ -87,6 +87,7 @@ class FieldGenerator {
 	protected function getFields($columns, IndexGenerator $indexGenerator)
 	{
 		$fields = array();
+		$timestamp_creado = false;
 		foreach ($columns as $column) {
 			$name = $column->getName();
 			$type = $column->getType()->getName();
@@ -125,10 +126,12 @@ class FieldGenerator {
 					$type = 'softDeletes';
 					$name = '';
 				} elseif ($name == 'created_at' and isset($fields['updated_at'])) {
-					$fields['updated_at'] = ['field' => '', 'type' => 'timestamps'];
+					//$fields['updated_at'] = ['field' => '', 'type' => 'timestamps'];
+					$timestamp_creado = true;
 					continue;
 				} elseif ($name == 'updated_at' and isset($fields['created_at'])) {
-					$fields['created_at'] = ['field' => '', 'type' => 'timestamps'];
+					//$fields['created_at'] = ['field' => '', 'type' => 'timestamps'];
+					$timestamp_creado = true;
 					continue;
 				}
 			} elseif (in_array($type, ['decimal', 'float', 'double'])) {
@@ -154,6 +157,10 @@ class FieldGenerator {
 			if ($decorators) $field['decorators'] = $decorators;
 			if ($args) $field['args'] = $args;
 			$fields[$name] = $field;
+		}
+		if(!$timestamp_creado)
+		{
+			$fields['created_at'] = ['field' => '', 'type' => 'timestamps'];
 		}
 		return $fields;
 	}
